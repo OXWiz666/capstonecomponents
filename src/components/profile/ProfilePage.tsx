@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -13,44 +13,178 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Textarea } from "../ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { User, Settings, Bell, Shield, LogOut } from "lucide-react";
+import {
+  User,
+  Settings,
+  Bell,
+  Shield,
+  LogOut,
+  Calendar,
+  FileText,
+  Upload,
+  Check,
+  AlertCircle,
+} from "lucide-react";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ProfilePage = () => {
-  // This would normally come from authentication context
-  const user = {
+  // Try to get user from auth context, otherwise use default
+  const { user: authUser, signOut } = useAuth();
+
+  // Default user data
+  const defaultUser = {
     name: "Juan Dela Cruz",
     email: "juan.delacruz@example.com",
     avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=juan",
     phone: "+63 912 345 6789",
     address: "123 Sampaguita St., Barangay Calumpang",
     medicalInfo: "No known allergies. Last check-up: March 2023",
+    birthdate: "1990-01-01",
+    emergencyContact: "",
+    bloodType: "O+",
+    allergies: "None",
+    medications: "None",
+  };
+
+  // Use auth user if available, otherwise use default
+  const userData = authUser
+    ? {
+        ...defaultUser,
+        name: authUser.user_metadata?.full_name || defaultUser.name,
+        email: authUser.email || defaultUser.email,
+        avatar: authUser.user_metadata?.avatar_url || defaultUser.avatar,
+      }
+    : defaultUser;
+
+  // State for form data
+  const [formData, setFormData] = useState(userData);
+  const [activeTab, setActiveTab] = useState("personal");
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const [saveError, setSaveError] = useState(false);
+
+  // Update form data when user changes
+  useEffect(() => {
+    setFormData(userData);
+  }, [authUser]);
+
+  // Sample appointments data
+  const appointments = [
+    {
+      id: 1,
+      date: "2023-10-15",
+      time: "10:00 AM",
+      doctor: "Dr. Maria Santos",
+      purpose: "Annual Check-up",
+      status: "Completed",
+    },
+    {
+      id: 2,
+      date: "2023-11-20",
+      time: "2:30 PM",
+      doctor: "Dr. Jose Reyes",
+      purpose: "Vaccination",
+      status: "Upcoming",
+    },
+  ];
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsSaving(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsSaving(false);
+      setSaveSuccess(true);
+      setIsEditing(false);
+
+      // Reset success message after 3 seconds
+      setTimeout(() => {
+        setSaveSuccess(false);
+      }, 3000);
+    }, 1000);
+  };
+
+  // Handle tab change
+  const handleTabChange = (value) => {
+    setActiveTab(value);
+    // Reset editing state when changing tabs
+    setIsEditing(false);
+  };
+
+  // Handle avatar upload
+  const handleAvatarUpload = () => {
+    // This would normally open a file picker
+    alert("Avatar upload functionality would be implemented here");
   };
 
   return (
-    <div className="container mx-auto py-24 px-4">
+    <div className="container mx-auto py-12 px-4 bg-gray-50 min-h-screen">
       <div className="flex flex-col md:flex-row gap-8">
         {/* Sidebar */}
         <div className="w-full md:w-1/4">
-          <Card className="bg-white">
+          <Card className="bg-white sticky top-4">
             <CardHeader className="pb-4">
               <div className="flex flex-col items-center">
-                <Avatar className="h-24 w-24 mb-4">
-                  <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <CardTitle className="text-xl">{user.name}</CardTitle>
-                <CardDescription>{user.email}</CardDescription>
+                <div className="relative group">
+                  <Avatar className="h-24 w-24 mb-4 border-4 border-primary/10">
+                    <AvatarImage src={formData.avatar} alt={formData.name} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
+                      {formData.name.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    onClick={handleAvatarUpload}
+                    className="absolute bottom-4 right-0 bg-primary text-white rounded-full p-1.5 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <Upload className="h-4 w-4" />
+                  </button>
+                </div>
+                <CardTitle className="text-xl">{formData.name}</CardTitle>
+                <CardDescription className="text-center">
+                  {formData.email}
+                </CardDescription>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <Button
-                  variant="ghost"
+                  variant={activeTab === "personal" ? "secondary" : "ghost"}
                   className="w-full justify-start"
                   size="lg"
+                  onClick={() => handleTabChange("personal")}
                 >
                   <User className="mr-2 h-5 w-5" />
                   Personal Information
+                </Button>
+                <Button
+                  variant={activeTab === "medical" ? "secondary" : "ghost"}
+                  className="w-full justify-start"
+                  size="lg"
+                  onClick={() => handleTabChange("medical")}
+                >
+                  <FileText className="mr-2 h-5 w-5" />
+                  Medical Information
+                </Button>
+                <Button
+                  variant={activeTab === "appointments" ? "secondary" : "ghost"}
+                  className="w-full justify-start"
+                  size="lg"
+                  onClick={() => handleTabChange("appointments")}
+                >
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Appointment History
                 </Button>
                 <Button
                   variant="ghost"
@@ -82,6 +216,7 @@ const ProfilePage = () => {
               <Button
                 variant="outline"
                 className="w-full text-red-500 hover:text-red-600 hover:bg-red-50"
+                onClick={signOut}
               >
                 <LogOut className="mr-2 h-5 w-5" />
                 Sign Out
@@ -94,13 +229,37 @@ const ProfilePage = () => {
         <div className="w-full md:w-3/4">
           <Card className="bg-white">
             <CardHeader>
-              <CardTitle>Profile Settings</CardTitle>
-              <CardDescription>
-                Manage your personal information and account settings
-              </CardDescription>
+              <div className="flex justify-between items-center">
+                <div>
+                  <CardTitle>Profile Settings</CardTitle>
+                  <CardDescription>
+                    Manage your personal information and account settings
+                  </CardDescription>
+                </div>
+                {activeTab !== "appointments" && (
+                  <Button
+                    variant={isEditing ? "outline" : "default"}
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    {isEditing ? "Cancel" : "Edit Profile"}
+                  </Button>
+                )}
+              </div>
+              {saveSuccess && (
+                <div className="mt-2 p-2 bg-green-50 text-green-700 rounded-md flex items-center">
+                  <Check className="h-5 w-5 mr-2" />
+                  Profile updated successfully!
+                </div>
+              )}
+              {saveError && (
+                <div className="mt-2 p-2 bg-red-50 text-red-700 rounded-md flex items-center">
+                  <AlertCircle className="h-5 w-5 mr-2" />
+                  Failed to update profile. Please try again.
+                </div>
+              )}
             </CardHeader>
             <CardContent>
-              <Tabs defaultValue="personal">
+              <Tabs value={activeTab} onValueChange={handleTabChange}>
                 <TabsList className="mb-4">
                   <TabsTrigger value="personal">
                     Personal Information
@@ -112,70 +271,221 @@ const ProfilePage = () => {
                 </TabsList>
 
                 <TabsContent value="personal" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input id="name" defaultValue={user.name} />
+                  <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="phone">Phone Number</Label>
+                        <Input
+                          id="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="birthdate">Date of Birth</Label>
+                        <Input
+                          id="birthdate"
+                          type="date"
+                          value={formData.birthdate}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                          required
+                        />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        defaultValue={user.email}
+                    <div className="space-y-2 mt-4">
+                      <Label htmlFor="address">Address</Label>
+                      <Textarea
+                        id="address"
+                        value={formData.address}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        required
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <Input id="phone" defaultValue={user.phone} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="birthdate">Date of Birth</Label>
-                      <Input
-                        id="birthdate"
-                        type="date"
-                        defaultValue="1990-01-01"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Textarea id="address" defaultValue={user.address} />
-                  </div>
-                  <Button className="mt-4">Save Changes</Button>
+                    {isEditing && (
+                      <Button
+                        type="submit"
+                        className="mt-4"
+                        disabled={isSaving}
+                      >
+                        {isSaving ? "Saving..." : "Save Changes"}
+                      </Button>
+                    )}
+                  </form>
                 </TabsContent>
 
                 <TabsContent value="medical" className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="medical-info">Medical Information</Label>
-                    <Textarea
-                      id="medical-info"
-                      rows={6}
-                      defaultValue={user.medicalInfo}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="emergency-contact">Emergency Contact</Label>
-                    <Input
-                      id="emergency-contact"
-                      placeholder="Name and phone number"
-                    />
-                  </div>
-                  <Button className="mt-4">Save Medical Information</Button>
+                  <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="bloodType">Blood Type</Label>
+                        <Input
+                          id="bloodType"
+                          value={formData.bloodType}
+                          onChange={handleChange}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="emergencyContact">
+                          Emergency Contact
+                        </Label>
+                        <Input
+                          id="emergencyContact"
+                          value={formData.emergencyContact}
+                          onChange={handleChange}
+                          placeholder="Name and phone number"
+                          disabled={!isEditing}
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2 mt-4">
+                      <Label htmlFor="allergies">Allergies</Label>
+                      <Textarea
+                        id="allergies"
+                        value={formData.allergies}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        placeholder="List any allergies"
+                      />
+                    </div>
+                    <div className="space-y-2 mt-4">
+                      <Label htmlFor="medications">Current Medications</Label>
+                      <Textarea
+                        id="medications"
+                        value={formData.medications}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                        placeholder="List any current medications"
+                      />
+                    </div>
+                    <div className="space-y-2 mt-4">
+                      <Label htmlFor="medicalInfo">
+                        Additional Medical Information
+                      </Label>
+                      <Textarea
+                        id="medicalInfo"
+                        rows={4}
+                        value={formData.medicalInfo}
+                        onChange={handleChange}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    {isEditing && (
+                      <Button
+                        type="submit"
+                        className="mt-4"
+                        disabled={isSaving}
+                      >
+                        {isSaving ? "Saving..." : "Save Medical Information"}
+                      </Button>
+                    )}
+                  </form>
                 </TabsContent>
 
                 <TabsContent value="appointments" className="space-y-4">
-                  <div className="rounded-md border">
-                    <div className="p-4 bg-muted/50">
-                      <h3 className="font-medium">Recent Appointments</h3>
+                  {appointments.length > 0 ? (
+                    <div className="rounded-md border">
+                      <div className="p-4 bg-muted/50 flex justify-between items-center">
+                        <h3 className="font-medium">Recent Appointments</h3>
+                        <Button size="sm" variant="outline">
+                          View All
+                        </Button>
+                      </div>
+                      <div className="divide-y">
+                        {appointments.map((appointment) => (
+                          <div
+                            key={appointment.id}
+                            className="p-4 hover:bg-muted/20 transition-colors"
+                          >
+                            <div className="flex justify-between items-start mb-2">
+                              <div>
+                                <h4 className="font-medium">
+                                  {appointment.purpose}
+                                </h4>
+                                <p className="text-sm text-muted-foreground">
+                                  {appointment.doctor}
+                                </p>
+                              </div>
+                              <span
+                                className={`text-xs px-2 py-1 rounded-full ${appointment.status === "Completed" ? "bg-green-100 text-green-800" : "bg-blue-100 text-blue-800"}`}
+                              >
+                                {appointment.status}
+                              </span>
+                            </div>
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <Calendar className="h-4 w-4 mr-1" />
+                              <span>
+                                {appointment.date} at {appointment.time}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="p-4">
-                      <p className="text-sm text-muted-foreground">
-                        You have no recent appointments.
-                      </p>
-                      <Button className="mt-4" variant="outline">
-                        Schedule an Appointment
-                      </Button>
+                  ) : (
+                    <div className="rounded-md border">
+                      <div className="p-4 bg-muted/50">
+                        <h3 className="font-medium">Recent Appointments</h3>
+                      </div>
+                      <div className="p-4">
+                        <p className="text-sm text-muted-foreground">
+                          You have no recent appointments.
+                        </p>
+                        <Button className="mt-4" variant="outline">
+                          Schedule an Appointment
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                  <div className="mt-6">
+                    <h3 className="font-medium mb-4">Upcoming Vaccinations</h3>
+                    <div className="rounded-md border p-4 bg-yellow-50">
+                      <div className="flex items-start">
+                        <div className="mr-4 bg-yellow-100 p-2 rounded-full">
+                          <Shield className="h-5 w-5 text-yellow-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-yellow-800">
+                            Flu Vaccination Due
+                          </h4>
+                          <p className="text-sm text-yellow-700 mt-1">
+                            Your annual flu vaccination is due this month.
+                            Please schedule an appointment.
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="mt-2 bg-white"
+                          >
+                            Schedule Now
+                          </Button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
