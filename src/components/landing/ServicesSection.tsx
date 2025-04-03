@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, Clock, FileText } from "lucide-react";
+import { Calendar, Clock, FileText, Syringe } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -42,6 +42,8 @@ const ServiceCard = ({
               window.location.href = "/appointments";
             } else if (title === "Vaccination Schedules") {
               window.location.href = "/services/vaccinations";
+            } else if (title === "Animal Bite Treatment") {
+              window.location.href = "/services/animal-bite";
             }
           }}
         >
@@ -82,6 +84,13 @@ const ServicesSection = ({
       description:
         "View upcoming vaccination campaigns, register for immunizations, and receive reminders for your family's vaccination appointments.",
       ctaText: "View Schedule",
+    },
+    {
+      icon: <Syringe className="w-6 h-6" />,
+      title: "Animal Bite Treatment",
+      description:
+        "Access professional care for animal bites with immediate response, trained healthcare professionals, and post-exposure prophylaxis services.",
+      ctaText: "Learn More",
     },
   ],
 }: ServicesSectionProps) => {

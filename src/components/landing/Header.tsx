@@ -51,9 +51,9 @@ const Header = ({
           description: "Access your health records securely",
         },
         {
-          label: "Vaccinations",
+          label: "Seasonal Programs",
           href: "/services/vaccinations",
-          description: "View vaccination schedules and availability",
+          description: "View seasonal programs schedules and availability",
         },
       ],
     },

@@ -10,6 +10,7 @@ import ServicesPage from "./components/services/ServicesPage";
 import ProfilePage from "./components/profile/ProfilePage";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
+import AnimalBiteTreatmentPage from "./components/AnimalBiteTreatment/AnimalBiteTreatmentPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import routes from "tempo-routes";
 
@@ -25,6 +26,10 @@ function App() {
             <Route
               path="/services/vaccinations"
               element={<VaccinationDashboard />}
+            />
+            <Route
+              path="/services/animal-bite"
+              element={<AnimalBiteTreatmentPage />}
             />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/faq" element={<FAQPage />} />
