@@ -44,6 +44,8 @@ const ServiceCard = ({
               window.location.href = "/services/vaccinations";
             } else if (title === "Animal Bite Treatment") {
               window.location.href = "/services/animal-bite";
+            } else if (title === "Medical Records Access") {
+              window.location.href = "/medical-records";
             }
           }}
         >

@@ -8,7 +8,7 @@ import {
 } from "../ui/card";
 import { Separator } from "../ui/separator";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { AlertCircle, Clock, FirstAid, Syringe } from "lucide-react";
+import { AlertCircle, Clock, Stethoscope, Syringe } from "lucide-react";
 
 const AnimalBiteTreatmentPage = () => {
   return (
@@ -39,7 +39,7 @@ const AnimalBiteTreatmentPage = () => {
         <Card className="bg-primary/5">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FirstAid className="h-5 w-5" /> Professional Care
+              <Stethoscope className="h-5 w-5" /> Professional Care
             </CardTitle>
           </CardHeader>
           <CardContent>
