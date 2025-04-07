@@ -11,6 +11,7 @@ import ProfilePage from "./components/profile/ProfilePage";
 import LoginForm from "./components/auth/LoginForm";
 import RegisterForm from "./components/auth/RegisterForm";
 import AnimalBiteTreatmentPage from "./components/AnimalBiteTreatment/AnimalBiteTreatmentPage";
+import MedicalRecordsPage from "./components/medical-records/MedicalRecordsPage";
 import { AuthProvider } from "./contexts/AuthContext";
 import routes from "tempo-routes";
 
@@ -35,6 +36,7 @@ function App() {
             <Route path="/faq" element={<FAQPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/medical-records" element={<MedicalRecordsPage />} />
             <Route path="/login" element={<LoginForm />} />
             <Route path="/register" element={<RegisterForm />} />
             {import.meta.env.VITE_TEMPO === "true" && (
